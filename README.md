@@ -1,139 +1,134 @@
-# AI Study Buddy 📚🤖
+Implementation Plan — AI Study Buddy Semester Project (Flask + HTML/CSS/JS)
+Create a complete semester project called “AI Study Buddy”, a modern, interactive, and AI-powered study assistant application designed to help students improve productivity, focus, and study management. This project is structured specifically for a Software Construction & Development university course.
 
-An intelligent, interactive study assistant application designed to help university students optimize productivity, schedule target deadlines, and perform active recall studying. Built as a comprehensive university semester project for the **Software Construction & Development** course.
+User Review Required
+IMPORTANT
 
----
+Tech Stack Adjustment: Since Node.js/NPM is not installed in the current environment but Python 3.13 is available, we will use Flask for the backend, PyTest for testing, and a highly polished Vanilla HTML/CSS/JS SPA architecture for the frontend. This runs natively without requiring any compilation or bundlers.
 
-## 🚀 Key Features
+Database Choice: We will use SQLite through SQLAlchemy. This is a relational database matching MySQL semantics, but is fully self-contained as a local file, making it ready to run out of the box for grading.
 
-* **Smart Task Planner**: Organize academic deadlines and estimate effort using Pomodoro cycles.
-* **Pomodoro Focus Timer**: Customizable work and break cycles linked directly to planner tasks, featuring native Web Audio chimes.
-* **AI Practice Quiz Generator**: Create custom multiple-choice quizzes dynamically from subjects (Computer Science, Math, Software Engineering) with explanation reviews.
-* **AI Chatbot Tutor**: An interactive conversational buddy to explain complex concepts on command.
-* **Progress Analytics Dashboard**: Visual CSS bar charts tracking 7-day habits, subject study hours, and quiz averages.
-* **Daily Goal & Streak System**: Motivation systems tracking study streaks.
-* **Responsive Dark/Light UI**: Adaptive interface styling.
+AI Features: The AI recommendations, chatbot responses, and quiz generation will be implemented using a local AI simulation engine with pre-trained rules and semantic logic, ensuring the app is fully functional and interactive without requiring paid API keys.
 
----
+Proposed Changes & Architecture
+The project will be organized in a monorepo structure:
 
-## 🛠️ Technology Stack
+backend/ - Flask server, SQLAlchemy database models, REST API, PyTest suite.
+frontend/ - Modern Vanilla HTML/CSS/JS web interface with responsive layouts, charts, and animations.
+docs/ - Comprehensive software engineering documentation (Agile process, SPI, Lehman's laws, refactoring report, user guide, etc.)
+legacy_demo/ - Demo of poorly structured code to satisfy the refactoring requirement
+Folder Structure
 
-* **Frontend**: HTML5, Vanilla CSS3 (dynamic HSL theme variables, glassmorphic visual cards), ES6 JavaScript modules.
-* **Backend**: Flask (Python 3.13) REST API.
-* **Database**: SQLite with SQLAlchemy ORM (Serverless local SQL file database).
-* **Testing**: PyTest for unit and integration routes checking.
-* **CI/CD**: GitHub Actions Build & Test workflows.
-
----
-
-## 📁 Repository Directory Structure
-
-```
 final-project/
-├── .github/
-│   └── workflows/
-│       └── ci.yml             # GitHub Actions CI pipeline
 ├── backend/
 │   ├── app/
-│   │   ├── __init__.py        # App Factory & routes registration
-│   │   ├── models.py          # SQLAlchemy user and study schema
+│   │   ├── __init__.py
+│   │   ├── models.py
 │   │   ├── routes/
-│   │   │   ├── auth.py        # Registration, Login, Profile JWT routes
-│   │   │   ├── planner.py     # Task CRUD endpoints
-│   │   │   ├── quiz.py        # MCQ generator & submission evaluation
-│   │   │   └── ai.py          # Chatbot conversation & recommendations
+│   │   │   ├── __init__.py
+│   │   │   ├── auth.py
+│   │   │   ├── planner.py
+│   │   │   ├── quiz.py
+│   │   │   └── ai.py
 │   │   └── services/
-│   │       └── ai_engine.py   # AI rules & recommendation filters
+│   │       └── ai_engine.py
 │   ├── tests/
-│   │   ├── conftest.py        # PyTest database & client setups
-│   │   └── test_*.py          # Unit test suites
-│   ├── run.py                 # Flask server launch script
-│   └── requirements.txt       # Backend dependencies log
-├── docs/
-│   ├── agile_scrum_details.md # Scrum sprints, Lehmann's Laws details
-│   ├── final_report.md        # Comprehensive semester report
-│   └── presentation_outline.md# grading presentation slides outline
+│   │   ├── __init__.py
+│   │   ├── test_auth.py
+│   │   ├── test_planner.py
+│   │   ├── test_quiz.py
+│   │   └── test_ai.py
+│   ├── run.py
+│   └── requirements.txt
 ├── frontend/
+│   ├── assets/
+│   │   └── logo.png
 │   ├── css/
-│   │   ├── variables.css      # Core HSL color variables
-│   │   ├── app.css            # Navigation, layout, sidebars
-│   │   └── components.css     # Form elements, dials, chats, bars
+│   │   ├── variables.css
+│   │   ├── app.css
+│   │   └── components.css
 │   ├── js/
-│   │   ├── api.js             # Fetch helper, auth token logic
-│   │   ├── auth.js            # Registration, login views controller
-│   │   ├── dashboard.js       # Navigation and dashboard statistics
-│   │   ├── planner.js         # Tasks list compiler
-│   │   ├── pomodoro.js        # Timer countdown cycle chimes
-│   │   ├── quiz.js            # MCQ player interface
-│   │   ├── chatbot.js         # Dialog bubbler
-│   │   └── analytics.js       # Bar graph visualizer
-│   └── index.html             # UI HTML SPA template
+│   │   ├── api.js
+│   │   ├── auth.js
+│   │   ├── dashboard.js
+│   │   ├── planner.js
+│   │   ├── quiz.js
+│   │   ├── pomodoro.js
+│   │   └── chatbot.js
+│   └── index.html
+├── docs/
+│   ├── final_report.md
+│   ├── presentation_outline.md
+│   ├── agile_scrum_details.md
+│   └── testing_report.md
 ├── legacy_demo/
-│   ├── spaghetti_app_bad.py   # spaghetti monolithic baseline
-│   └── refactoring_explanation.md # Refactoring optimization report
-└── README.md                  # Master manual documentation
-```
-
----
-
-## 💻 Installation & Execution Guide
-
-### Prerequisites
-* Python 3.10+ (tested on Python 3.13.5)
-
-### Step 1: Clone and Navigate
-Clone this repository to your local system and navigate to the project directory:
-```bash
-cd final-project
-```
-
-### Step 2: Set Up Virtual Environment & Install Dependencies
-Create a Python virtual environment and install the required libraries:
-```bash
-# Windows
-python -m venv venv
-.\venv\Scripts\activate
-pip install -r backend/requirements.txt
-
-# macOS/Linux
-python3 -m venv venv
-source venv/bin/activate
-pip install -r backend/requirements.txt
-```
-
-### Step 3: Run the Application
-Start the Flask application server:
-```bash
-python backend/run.py
-```
-The server will boot on `http://127.0.0.1:5000/`.
-
-### Step 4: Open in Web Browser
-Open your browser and navigate to:
-```url
-http://127.0.0.1:5000/
-```
-The Flask backend will serve both the backend API and the static frontend SPA natively, avoiding all CORS configurations!
-
----
-
-## 🧪 Running the Test Suite
-
-We use **PyTest** to check route logic. To run tests:
-```bash
-# Activate environment if not already activated
-.\venv\Scripts\activate
-
-# Run tests with verbose details
-pytest backend/tests/ -v
-```
-
----
-
-## 🛡️ Software Engineering Highlights
-
-* **Agile Sprints**: Project execution split into 4 increments (1. DB/Auth, 2. Planner/Timer, 3. Quiz/Chatbot, 4. Analytics/Testing).
-* **Refactoring Legacy Code**: Contrast our secure modular MVC production database app with the spaghetti monolith inside the `legacy_demo/` folder.
-* **Security & JWT**: Password encryption via `bcrypt` salts, API routing blocked by signed authentication JWT tokens.
-* **Exception Controls**: Strict checks validate date entries and handle database rolls to block crashes.
-* **Continuous Integration**: GitHub Actions CI builds automatically verify every commits pull request.
+│   ├── spaghetti_app_bad.py
+│   └── refactoring_explanation.md
+├── .github/
+│   └── workflows/
+│       └── ci.yml
+├── README.md
+└── requirements.txt (root workspace)
+Database Schema (SQLite / Relational)
+Users Table
+id (UUID or Integer, PK)
+username (VARCHAR, Unique, Nullable=false)
+email (VARCHAR, Unique, Nullable=false)
+password (VARCHAR, Hash, Nullable=false)
+streak (INTEGER, Default=0)
+last_active (DATE)
+daily_goal_minutes (INTEGER, Default=60)
+created_at / updated_at
+Tasks Table (Planner)
+id (UUID or Integer, PK)
+user_id (FK -> Users.id)
+title (VARCHAR, Nullable=false)
+description (TEXT)
+due_date (DATE)
+subject (VARCHAR)
+estimated_pomodoros (INTEGER, Default=1)
+completed_pomodoros (INTEGER, Default=0)
+status (ENUM/VARCHAR: 'pending', 'in-progress', 'completed')
+created_at / updated_at
+Quizzes Table
+id (UUID or Integer, PK)
+user_id (FK -> Users.id)
+title (VARCHAR, Nullable=false)
+subject (VARCHAR)
+questions (JSON text containing array of questions, options, and correct answers)
+score (INTEGER, Nullable)
+total_questions (INTEGER)
+created_at / updated_at
+StudyLogs Table (Analytics & Focus tracking)
+id (UUID or Integer, PK)
+user_id (FK -> Users.id)
+subject (VARCHAR, Nullable=false)
+duration_minutes (INTEGER, Nullable=false)
+activity_type (VARCHAR: 'pomodoro', 'quiz', 'chat', 'reading')
+date (DATE, Default=CURRENT_DATE)
+created_at / updated_at
+API Endpoints
+Authentication
+POST /api/auth/register - Register a new student
+POST /api/auth/login - Login and return JWT token
+GET /api/auth/profile - Get user profile and current streak status
+Planner
+GET /api/tasks - Get student task list
+POST /api/tasks - Create a new task
+PUT /api/tasks/<id> - Update status, title, description, or Pomodoro count
+DELETE /api/tasks/<id> - Delete a task
+Quiz Generator
+POST /api/quiz/generate - Generate a quiz using local AI rules based on notes/topics
+POST /api/quiz/submit - Save quiz attempts, scores, and track analytics
+AI Assistant & Recommendations
+POST /api/ai/chat - Chatbot for answering study questions
+GET /api/ai/recommendations - Retrieve personalized study suggestions based on current tasks, completion history, and performance analytics
+Verification Plan
+Automated Tests
+Run backend unit and integration tests using pytest inside the backend directory.
+Test authentication validation, quiz generation structure, tasks CRUD, and AI recommendation rules.
+Set up a GitHub Actions workflow .github/workflows/ci.yml that runs linting and PyTest on every push.
+Manual Verification
+Verify the responsive dark/light UI in various browser viewport sizes.
+Verify Pomodoro audio alerts, page transitions, and interactive quiz interfaces.
+Verify session persistent state across reloads.
