@@ -1,0 +1,247 @@
+/* Core App Layout and Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font-body);
+}
+
+body {
+    background-color: var(--bg-app);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+}
+
+/* Auth Layout (Login / Register Screens) */
+#auth-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    background: radial-gradient(circle at 10% 20%, var(--primary-light) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, var(--success-light) 0%, transparent 40%);
+}
+
+.auth-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+    border-radius: var(--border-radius-lg);
+    width: 100%;
+    max-width: 440px;
+    padding: 40px;
+    transition: transform var(--transition-normal);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.auth-logo {
+    font-size: 2.5rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    color: var(--primary);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* App Main Container (Grid layout for Sidebar + Content) */
+#app-container {
+    display: grid;
+    grid-template-columns: var(--sidebar-width) 1fr;
+    min-height: 100vh;
+}
+
+/* Sidebar Styling */
+aside {
+    background: var(--bg-card);
+    border-right: 1px solid var(--border-color);
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    transition: background-color var(--transition-normal), border-color var(--transition-normal);
+}
+
+.sidebar-logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 40px;
+    padding-left: 10px;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-grow: 1;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-radius: var(--border-radius-md);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.nav-item:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.nav-item.active {
+    background: var(--primary-light);
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.sidebar-footer {
+    border-top: 1px solid var(--border-color);
+    padding-top: 20px;
+    margin-top: auto;
+}
+
+.user-profile-badge {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    border-radius: var(--border-radius-md);
+    background: var(--bg-hover);
+}
+
+.profile-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--border-radius-circle);
+    background: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+/* Main Content Panel */
+main {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+/* Header control bar */
+header {
+    height: 70px;
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-card);
+    transition: background-color var(--transition-normal);
+}
+
+.header-title-section h1 {
+    font-size: 1.25rem;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.streak-counter {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--warning-light);
+    color: var(--warning);
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.goal-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--success-light);
+    color: var(--success);
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* Content Container & Panels */
+.content-container {
+    padding: 40px;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.view-panel {
+    display: none;
+    animation: fadeIn var(--transition-normal);
+}
+
+.view-panel.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Utility buttons */
+.logout-btn {
+    margin-top: 10px;
+    width: 100%;
+}
+
+/* Responsive Rules */
+@media (max-width: 1024px) {
+    #app-container {
+        grid-template-columns: 1fr;
+    }
+    aside {
+        display: none; /* In a production app, we'd add a burger menu toggler */
+    }
+    header {
+        padding: 0 20px;
+    }
+    .content-container {
+        padding: 20px;
+    }
+}

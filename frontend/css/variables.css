@@ -1,0 +1,84 @@
+/* CSS Design System and Theme Tokens */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+    --font-heading: 'Outfit', sans-serif;
+    --font-body: 'Plus Jakarta Sans', sans-serif;
+    
+    /* Transitions */
+    --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Layout */
+    --sidebar-width: 260px;
+    --border-radius-sm: 8px;
+    --border-radius-md: 14px;
+    --border-radius-lg: 24px;
+    --border-radius-circle: 50%;
+    
+    /* Shadows */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* Light Theme Variables */
+[data-theme="light"] {
+    --bg-app: #f5f7fb;
+    --bg-card: #ffffff;
+    --bg-input: #f8fafc;
+    --bg-hover: #f1f5f9;
+    --border-color: #e2e8f0;
+    
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    
+    --primary: hsl(250, 84%, 60%);
+    --primary-light: hsl(250, 84%, 94%);
+    --primary-hover: hsl(250, 84%, 55%);
+    
+    --success: hsl(142, 70%, 45%);
+    --success-light: hsl(142, 70%, 94%);
+    
+    --danger: hsl(350, 80%, 55%);
+    --danger-light: hsl(350, 80%, 94%);
+    
+    --warning: hsl(38, 92%, 50%);
+    --warning-light: hsl(38, 92%, 94%);
+    
+    --shadow-color: rgba(15, 23, 42, 0.06);
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.4);
+}
+
+/* Dark Theme Variables (Default) */
+[data-theme="dark"] {
+    --bg-app: #090d16;
+    --bg-card: #111827;
+    --bg-input: #1f2937;
+    --bg-hover: #1e293b;
+    --border-color: #374151;
+    
+    --text-primary: #f9fafb;
+    --text-secondary: #9ca3af;
+    --text-muted: #6b7280;
+    
+    --primary: hsl(250, 84%, 66%);
+    --primary-light: rgba(99, 102, 241, 0.15);
+    --primary-hover: hsl(250, 84%, 72%);
+    
+    --success: hsl(142, 70%, 50%);
+    --success-light: rgba(16, 185, 129, 0.15);
+    
+    --danger: hsl(350, 80%, 60%);
+    --danger-light: rgba(239, 68, 68, 0.15);
+    
+    --warning: hsl(38, 92%, 55%);
+    --warning-light: rgba(245, 158, 11, 0.15);
+    
+    --shadow-color: rgba(0, 0, 0, 0.4);
+    --glass-bg: rgba(17, 24, 39, 0.7);
+    --glass-border: rgba(55, 65, 81, 0.4);
+}
