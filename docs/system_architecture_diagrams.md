@@ -8,6 +8,8 @@ This document contains the official UML design representation for the **AI Study
 
 The class diagram maps the relationships between the database model entities, route blueprints (controllers), and the rule-based AI core service.
 
+![Class Diagram](images/class_diagram.png)
+
 ```mermaid
 classDiagram
     %% Core SQLAlchemy Database Models
@@ -119,6 +121,8 @@ classDiagram
 ### 2.1 User Authentication Flow
 This diagram details the flow of user registration/login, JWT token issuance, and subsequent authenticated sessions.
 
+![User Authentication Flow](images/auth_flow.png)
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -153,6 +157,8 @@ sequenceDiagram
 
 ### 2.2 Task Lifecycle & Pomodoro Focus Flow
 This diagram shows how creating a task leads to Pomodoro study, which subsequently triggers automatic SQL logs.
+
+![Task Lifecycle & Pomodoro Focus Flow](images/task_flow.png)
 
 ```mermaid
 sequenceDiagram
@@ -199,6 +205,8 @@ sequenceDiagram
 ### 2.3 Interactive Practice Quiz Flow
 This sequence details generating a quiz, evaluating answers, scoring, and writing study logs.
 
+![Interactive Practice Quiz Flow](images/quiz_flow.png)
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -234,6 +242,8 @@ sequenceDiagram
 ### 2.4 AI Chatbot Flow
 This sequence details the chat flow.
 
+![AI Chatbot Flow](images/chatbot_flow.png)
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -262,18 +272,20 @@ sequenceDiagram
 
 The component diagram showcases the boundaries between modules, mapping frontend event controllers, API routers, service layers, and the SQLite schema objects.
 
+![Component Diagram](images/component_diagram.png)
+
 ```mermaid
-componentDiagram
+flowchart TD
     %% Front-End SPA Components
-    package "Frontend Single-Page Application" {
-        [index.html] as UI
-        [api.js] as API_Client
-        [auth.js] as Auth_Controller
-        [planner.js] as Planner_Controller
-        [pomodoro.js] as Pomo_Controller
-        [quiz.js] as Quiz_Controller
-        [chatbot.js] as Chat_Controller
-        [analytics.js] as Analytics_Controller
+    subgraph Frontend ["Frontend Single-Page Application"]
+        UI["index.html"]
+        API_Client["api.js"]
+        Auth_Controller["auth.js"]
+        Planner_Controller["planner.js"]
+        Pomo_Controller["pomodoro.js"]
+        Quiz_Controller["quiz.js"]
+        Chat_Controller["chatbot.js"]
+        Analytics_Controller["analytics.js"]
         
         Auth_Controller --> API_Client
         Planner_Controller --> API_Client
@@ -281,16 +293,16 @@ componentDiagram
         Quiz_Controller --> API_Client
         Chat_Controller --> API_Client
         Analytics_Controller --> API_Client
-    }
+    end
 
     %% Backend Flask Components
-    package "Flask REST API Server" {
-        [__init__.py (App Factory)] as Factory
-        [auth.py (Blueprint)] as Auth_Routes
-        [planner.py (Blueprint)] as Planner_Routes
-        [quiz.py (Blueprint)] as Quiz_Routes
-        [ai.py (Blueprint)] as AI_Routes
-        [ai_engine.py (AI Service)] as AI_Engine
+    subgraph Backend ["Flask REST API Server"]
+        Factory["__init__.py (App Factory)"]
+        Auth_Routes["auth.py (Blueprint)"]
+        Planner_Routes["planner.py (Blueprint)"]
+        Quiz_Routes["quiz.py (Blueprint)"]
+        AI_Routes["ai.py (Blueprint)"]
+        AI_Engine["ai_engine.py (AI Service)"]
         
         Factory --> Auth_Routes
         Factory --> Planner_Routes
@@ -299,21 +311,21 @@ componentDiagram
         
         Quiz_Routes --> AI_Engine
         AI_Routes --> AI_Engine
-    }
+    end
 
     %% Data Store Layer
-    package "Database Layer" {
-        [models.py (SQLAlchemy ORM)] as ORM_Models
-        database "SQLite Database\n(ai_study_buddy.db)" as DB
+    subgraph DB_Layer ["Database Layer"]
+        ORM_Models["models.py (SQLAlchemy ORM)"]
+        DB[("SQLite Database<br>(ai_study_buddy.db)")]
         
         ORM_Models --> DB
-    }
+    end
 
     %% Inter-component Connectors
-    API_Client ===> Auth_Routes : "HTTP (JWT in Headers)"
-    API_Client ===> Planner_Routes : "HTTP (JWT in Headers)"
-    API_Client ===> Quiz_Routes : "HTTP (JWT in Headers)"
-    API_Client ===> AI_Routes : "HTTP (JWT in Headers)"
+    API_Client ==>|HTTP JWT in Headers| Auth_Routes
+    API_Client ==>|HTTP JWT in Headers| Planner_Routes
+    API_Client ==>|HTTP JWT in Headers| Quiz_Routes
+    API_Client ==>|HTTP JWT in Headers| AI_Routes
     
     Auth_Routes ----> ORM_Models
     Planner_Routes ----> ORM_Models
@@ -327,39 +339,41 @@ componentDiagram
 
 The deployment diagram illustrates the physical hosting configuration, tracing how browsers communicate with Gunicorn on Render, and showcasing the GitHub automated verification runner.
 
+![Deployment Diagram](images/deployment_diagram.png)
+
 ```mermaid
-deploymentDiagram
+flowchart TD
     %% User System Node
-    node "User PC (Client Tier)" {
-        node "Web Browser (Chrome/Firefox/Safari)" {
-            [Single-Page Application] as SPA
-        }
-    }
+    subgraph Client ["User PC (Client Tier)"]
+        subgraph Browser ["Web Browser (Chrome/Firefox/Safari)"]
+            SPA["Single-Page Application"]
+        end
+    end
 
     %% Render Production Cloud Service Node
-    node "Render Production Container (Application Tier)\nOS: Ubuntu Linux" {
-        node "Gunicorn HTTP Daemon" {
-            [WSGI Application Server] as WSGI
-        }
-        node "Flask Backend Instance" {
-            [AI Study Buddy Core] as FlaskApp
-        }
-        node "Persistent File System Storage" {
-            database "SQLite File\n(ai_study_buddy.db)" as DB_File
-        }
+    subgraph Render ["Render Production Cloud (Application Tier)<br>OS: Ubuntu Linux"]
+        subgraph Daemon ["Gunicorn HTTP Daemon"]
+            WSGI["WSGI Application Server"]
+        end
+        subgraph Flask ["Flask Backend Instance"]
+            FlaskApp["AI Study Buddy Core"]
+        end
+        subgraph Storage ["Persistent File System Storage"]
+            DB_File[("SQLite File<br>(ai_study_buddy.db)")]
+        end
         
         WSGI --> FlaskApp
-        FlaskApp --> DB_File : "SQLAlchemy Local Connections"
-    }
+        FlaskApp --> DB_File
+    end
 
     %% GitHub actions Node
-    node "GitHub Actions (CI/CD Pipeline)\nOS: ubuntu-latest VM" {
-        node "Python 3.13 Test Environment" {
-            [PyTest Suite] as Tests
-        }
-    }
+    subgraph CI_CD ["GitHub Actions (CI/CD Pipeline)<br>OS: ubuntu-latest VM"]
+        subgraph Actions ["Python 3.13 Test Environment"]
+            Tests["PyTest Suite"]
+        end
+    end
 
     %% Communication Connectors
-    SPA ===> WSGI : "HTTPS / WSS (JSON data on port 443)"
-    Tests ---> FlaskApp : "Clones and runs automated validation"
+    SPA ==>|HTTPS / WSS on Port 443| WSGI
+    Tests -->|Clones and runs automated validation| FlaskApp
 ```
