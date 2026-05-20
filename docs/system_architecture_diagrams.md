@@ -8,7 +8,7 @@ This document contains the official UML design representation for the **AI Study
 
 The class diagram maps the relationships between the database model entities, route blueprints (controllers), and the rule-based AI core service.
 
-![Class Diagram](images/class_diagram.png)
+![Class Diagram](uml/class_diagram.png)
 
 ```mermaid
 classDiagram
@@ -121,7 +121,7 @@ classDiagram
 ### 2.1 User Authentication Flow
 This diagram details the flow of user registration/login, JWT token issuance, and subsequent authenticated sessions.
 
-![User Authentication Flow](images/auth_flow.png)
+![User Authentication Flow](uml/auth_flow.png)
 
 ```mermaid
 sequenceDiagram
@@ -158,7 +158,7 @@ sequenceDiagram
 ### 2.2 Task Lifecycle & Pomodoro Focus Flow
 This diagram shows how creating a task leads to Pomodoro study, which subsequently triggers automatic SQL logs.
 
-![Task Lifecycle & Pomodoro Focus Flow](images/task_flow.png)
+![Task Lifecycle & Pomodoro Focus Flow](uml/task_flow.png)
 
 ```mermaid
 sequenceDiagram
@@ -205,7 +205,7 @@ sequenceDiagram
 ### 2.3 Interactive Practice Quiz Flow
 This sequence details generating a quiz, evaluating answers, scoring, and writing study logs.
 
-![Interactive Practice Quiz Flow](images/quiz_flow.png)
+![Interactive Practice Quiz Flow](uml/quiz_flow.png)
 
 ```mermaid
 sequenceDiagram
@@ -242,7 +242,7 @@ sequenceDiagram
 ### 2.4 AI Chatbot Flow
 This sequence details the chat flow.
 
-![AI Chatbot Flow](images/chatbot_flow.png)
+![AI Chatbot Flow](uml/chatbot_flow.png)
 
 ```mermaid
 sequenceDiagram
@@ -272,7 +272,7 @@ sequenceDiagram
 
 The component diagram showcases the boundaries between modules, mapping frontend event controllers, API routers, service layers, and the SQLite schema objects.
 
-![Component Diagram](images/component_diagram.png)
+![Component Diagram](uml/component_diagram.png)
 
 ```mermaid
 flowchart TD
@@ -339,7 +339,7 @@ flowchart TD
 
 The deployment diagram illustrates the physical hosting configuration, tracing how browsers communicate with Gunicorn on Render, and showcasing the GitHub automated verification runner.
 
-![Deployment Diagram](images/deployment_diagram.png)
+![Deployment Diagram](uml/deployment_diagram.png)
 
 ```mermaid
 flowchart TD
