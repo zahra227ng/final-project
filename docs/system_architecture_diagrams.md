@@ -1,0 +1,365 @@
+# AI Study Buddy — UML System Architecture Diagrams
+
+This document contains the official UML design representation for the **AI Study Buddy** application. The diagrams below model the database entities, routes, active lifecycles, and physical node layouts.
+
+---
+
+## 1. Class Diagram
+
+The class diagram maps the relationships between the database model entities, route blueprints (controllers), and the rule-based AI core service.
+
+```mermaid
+classDiagram
+    %% Core SQLAlchemy Database Models
+    class User {
+        +int id
+        +string username
+        +string email
+        +string password_hash
+        +int streak
+        +date last_active
+        +int daily_goal_minutes
+        +set_password(password)
+        +check_password(password)
+        +to_dict()
+    }
+    
+    class Task {
+        +int id
+        +int user_id
+        +string title
+        +string description
+        +date due_date
+        +string subject
+        +int estimated_pomodoros
+        +int completed_pomodoros
+        +string status
+        +to_dict()
+    }
+    
+    class Quiz {
+        +int id
+        +int user_id
+        +string title
+        +string subject
+        +json questions
+        +int score
+        +int total_questions
+        +date created_at
+        +to_dict()
+    }
+    
+    class StudyLog {
+        +int id
+        +int user_id
+        +string subject
+        +int duration_minutes
+        +string activity_type
+        +date date
+        +to_dict()
+    }
+
+    %% AI Engine Service Layer
+    class AIEngine {
+        +get_recommendations(user_tasks, streak) List
+        +generate_quiz(subject, topic) Dict
+        +chatbot_response(message) Dict
+    }
+
+    %% Blueprint Routes (Controller Layer)
+    class AuthRoutes {
+        +register() Response
+        +login() Response
+        +get_profile() Response
+    }
+    
+    class PlannerRoutes {
+        +get_tasks() Response
+        +create_task() Response
+        +update_task() Response
+        +delete_task() Response
+    }
+    
+    class QuizRoutes {
+        +generate_quiz() Response
+        +submit_quiz() Response
+        +get_quiz_history() Response
+    }
+    
+    class AIRoutes {
+        +get_recommendations() Response
+        +get_analytics() Response
+        +post_study_log() Response
+        +post_chat() Response
+    }
+
+    %% Relationships
+    User "1" *-- "*" Task : owns
+    User "1" *-- "*" Quiz : attempts
+    User "1" *-- "*" StudyLog : logs
+
+    AuthRoutes ..> User : queries/modifies
+    PlannerRoutes ..> User : authenticates
+    PlannerRoutes ..> Task : queries/modifies
+    PlannerRoutes ..> StudyLog : creates_on_complete
+
+    QuizRoutes ..> User : authenticates
+    QuizRoutes ..> Quiz : queries/modifies
+    QuizRoutes ..> AIEngine : delegates_generation
+
+    AIRoutes ..> User : authenticates
+    AIRoutes ..> StudyLog : aggregates/inserts
+    AIRoutes ..> AIEngine : queries_recs_and_chat
+```
+
+---
+
+## 2. Sequence Diagrams
+
+### 2.1 User Authentication Flow
+This diagram details the flow of user registration/login, JWT token issuance, and subsequent authenticated sessions.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Student as Student Client
+    participant FE as Frontend (auth.js / api.js)
+    participant AuthAPI as Auth Router (auth.py)
+    participant DB as SQLite Database
+
+    %% Registration
+    Note over Student, DB: User Registration Flow
+    Student->>FE: Fill register form & submit
+    FE->>AuthAPI: POST /api/auth/register (username, email, password)
+    AuthAPI->>DB: Check if username/email exists
+    DB-->>AuthAPI: No duplicate found
+    AuthAPI->>AuthAPI: Hash password via bcrypt
+    AuthAPI->>DB: Insert new User row
+    DB-->>AuthAPI: Confirm write
+    AuthAPI->>AuthAPI: Encode signed JWT (user_id, exp)
+    AuthAPI-->>FE: Return JSON Response + JWT Token
+    FE->>FE: Cache JWT in LocalStorage
+
+    %% Login & Session Usage
+    Note over Student, DB: Authenticated API Session Flow
+    Student->>FE: Click Dashboard / Refresh
+    FE->>AuthAPI: GET /api/auth/profile (Headers: Authorization: Bearer JWT)
+    AuthAPI->>AuthAPI: Decode JWT & Verify Signature
+    AuthAPI->>DB: Query User profile (by user_id)
+    DB-->>AuthAPI: Return User details (username, streak)
+    AuthAPI-->>FE: HTTP 200 OK + User data
+    FE->>Student: Render customized dashboard views
+```
+
+### 2.2 Task Lifecycle & Pomodoro Focus Flow
+This diagram shows how creating a task leads to Pomodoro study, which subsequently triggers automatic SQL logs.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Student
+    participant PlannerJS as planner.js
+    participant PomoJS as pomodoro.js
+    participant Router as Planner/AI Router
+    participant DB as SQLite Database
+
+    %% 1. Task Creation
+    Student->>PlannerJS: Input task details (Math, Est Pomo: 2) & save
+    PlannerJS->>Router: POST /api/tasks
+    Router->>DB: Insert Task (status='pending', completed_pomodoros=0)
+    DB-->>Router: Confirm write
+    Router-->>PlannerJS: HTTP 201 Created (task_id)
+    PlannerJS->>Student: Render pending task card
+
+    %% 2. Link Focus
+    Student->>PlannerJS: Click "Focus ⏱️" on math task card
+    PlannerJS->>PomoJS: Redirect view, prefill subject: "Math", link task_id
+    PomoJS->>Student: Display "Focusing on: Math task"
+
+    %% 3. Pomodoro Timer Active Session
+    Student->>PomoJS: Click "Start Focus"
+    Note over PomoJS: Countdown ticks down (25 mins)...
+    PomoJS->>PomoJS: Timer reaches 0:00 (synthesize Web Audio chime)
+    
+    %% 4. Automatic Log Triggers
+    PomoJS->>Router: POST /api/ai/study_log (Math, 25 mins, activity='pomodoro')
+    Router->>DB: Insert StudyLog row
+    Router->>DB: Update User daily streak & check goal targets
+    DB-->>Router: Confirm update
+    Router-->>PomoJS: HTTP 201 Created
+    
+    %% 5. Task completed_pomodoros increment
+    PomoJS->>Router: PUT /api/tasks/<task_id> (completed_pomodoros = 1)
+    Router->>DB: Update Task row
+    DB-->>Router: Confirm write
+    Router-->>PomoJS: HTTP 200 OK
+    PomoJS->>Student: Alert focus session logged! Transition to break mode.
+```
+
+### 2.3 Interactive Practice Quiz Flow
+This sequence details generating a quiz, evaluating answers, scoring, and writing study logs.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Student
+    participant QuizJS as quiz.js
+    participant Router as Quiz Router
+    participant AI as AI Engine (ai_engine.py)
+    participant DB as SQLite Database
+
+    %% Quiz Generation
+    Student->>QuizJS: Select Subject "Software Eng", Topic "Agile" & Generate
+    QuizJS->>Router: POST /api/quiz/generate (subject, topic)
+    Router->>AI: generate_quiz("Software Engineering", "Agile")
+    AI-->>Router: Return Dict (5 MCQs, options, correct answers, explanations)
+    Router->>DB: Save Quiz object (score=NULL, total=5)
+    DB-->>Router: Confirm write
+    Router-->>QuizJS: Return Quiz data JSON (quiz_id, questions, choices)
+    QuizJS->>Student: Render Question 1 board
+
+    %% Answer Submission & Evaluation
+    Student->>QuizJS: Answer all questions & click submit
+    QuizJS->>Router: POST /api/quiz/submit (quiz_id, answers array)
+    Router->>DB: Query Quiz details
+    DB-->>Router: Return saved answers keys
+    Router->>Router: Compare keys & compute score (e.g. 4/5)
+    Router->>DB: Update Quiz score (4/5)
+    Router->>DB: Insert StudyLog (duration=15 mins, activity='quiz')
+    DB-->>Router: Confirm write
+    Router-->>QuizJS: Return Results (score=4, correct indices, explanations)
+    QuizJS->>Student: Render Score Card + explanation boxes + Audio chimes
+```
+
+### 2.4 AI Chatbot Flow
+This sequence details the chat flow.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Student
+    participant ChatJS as chatbot.js
+    participant Router as AI Router
+    participant AI as AI Engine (ai_engine.py)
+    participant DB as SQLite Database
+
+    Student->>ChatJS: Types query / clicks Feynman quick chip
+    ChatJS->>ChatJS: Append user message bubble to view
+    ChatJS->>Router: POST /api/ai/chat (message text)
+    Router->>AI: chatbot_response(message text)
+    AI->>AI: Scan keywords matching greetings, study tips, or default concepts
+    AI-->>Router: Return Dict (response text)
+    Router->>DB: Insert StudyLog (duration=1 min, activity='chat')
+    DB-->>Router: Confirm write
+    Router-->>ChatJS: Return response text JSON
+    ChatJS->>ChatJS: Parse bold tags, append bot bubble, scroll to bottom
+    ChatJS->>Student: Display tutoring response
+```
+
+---
+
+## 3. Component Diagram
+
+The component diagram showcases the boundaries between modules, mapping frontend event controllers, API routers, service layers, and the SQLite schema objects.
+
+```mermaid
+componentDiagram
+    %% Front-End SPA Components
+    package "Frontend Single-Page Application" {
+        [index.html] as UI
+        [api.js] as API_Client
+        [auth.js] as Auth_Controller
+        [planner.js] as Planner_Controller
+        [pomodoro.js] as Pomo_Controller
+        [quiz.js] as Quiz_Controller
+        [chatbot.js] as Chat_Controller
+        [analytics.js] as Analytics_Controller
+        
+        Auth_Controller --> API_Client
+        Planner_Controller --> API_Client
+        Pomo_Controller --> API_Client
+        Quiz_Controller --> API_Client
+        Chat_Controller --> API_Client
+        Analytics_Controller --> API_Client
+    }
+
+    %% Backend Flask Components
+    package "Flask REST API Server" {
+        [__init__.py (App Factory)] as Factory
+        [auth.py (Blueprint)] as Auth_Routes
+        [planner.py (Blueprint)] as Planner_Routes
+        [quiz.py (Blueprint)] as Quiz_Routes
+        [ai.py (Blueprint)] as AI_Routes
+        [ai_engine.py (AI Service)] as AI_Engine
+        
+        Factory --> Auth_Routes
+        Factory --> Planner_Routes
+        Factory --> Quiz_Routes
+        Factory --> AI_Routes
+        
+        Quiz_Routes --> AI_Engine
+        AI_Routes --> AI_Engine
+    }
+
+    %% Data Store Layer
+    package "Database Layer" {
+        [models.py (SQLAlchemy ORM)] as ORM_Models
+        database "SQLite Database\n(ai_study_buddy.db)" as DB
+        
+        ORM_Models --> DB
+    }
+
+    %% Inter-component Connectors
+    API_Client ===> Auth_Routes : "HTTP (JWT in Headers)"
+    API_Client ===> Planner_Routes : "HTTP (JWT in Headers)"
+    API_Client ===> Quiz_Routes : "HTTP (JWT in Headers)"
+    API_Client ===> AI_Routes : "HTTP (JWT in Headers)"
+    
+    Auth_Routes ----> ORM_Models
+    Planner_Routes ----> ORM_Models
+    Quiz_Routes ----> ORM_Models
+    AI_Routes ----> ORM_Models
+```
+
+---
+
+## 4. Deployment Diagram
+
+The deployment diagram illustrates the physical hosting configuration, tracing how browsers communicate with Gunicorn on Render, and showcasing the GitHub automated verification runner.
+
+```mermaid
+deploymentDiagram
+    %% User System Node
+    node "User PC (Client Tier)" {
+        node "Web Browser (Chrome/Firefox/Safari)" {
+            [Single-Page Application] as SPA
+        }
+    }
+
+    %% Render Production Cloud Service Node
+    node "Render Production Container (Application Tier)\nOS: Ubuntu Linux" {
+        node "Gunicorn HTTP Daemon" {
+            [WSGI Application Server] as WSGI
+        }
+        node "Flask Backend Instance" {
+            [AI Study Buddy Core] as FlaskApp
+        }
+        node "Persistent File System Storage" {
+            database "SQLite File\n(ai_study_buddy.db)" as DB_File
+        }
+        
+        WSGI --> FlaskApp
+        FlaskApp --> DB_File : "SQLAlchemy Local Connections"
+    }
+
+    %% GitHub actions Node
+    node "GitHub Actions (CI/CD Pipeline)\nOS: ubuntu-latest VM" {
+        node "Python 3.13 Test Environment" {
+            [PyTest Suite] as Tests
+        }
+    }
+
+    %% Communication Connectors
+    SPA ===> WSGI : "HTTPS / WSS (JSON data on port 443)"
+    Tests ---> FlaskApp : "Clones and runs automated validation"
+```
